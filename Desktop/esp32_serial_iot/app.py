@@ -10,6 +10,11 @@ import matplotlib
 matplotlib.use('Agg')  # Use non-GUI backend
 import matplotlib.pyplot as plt
 
+import psycopg2
+
+conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+
+
 app = Flask(__name__)
 data_file = "data_log.csv"
 

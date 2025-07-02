@@ -1,0 +1,9 @@
+CREATE DATABASE iot_data;
+
+USE iot_data;
+
+CREATE TABLE temperature_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    timestamp INT,
+    temperature FLOAT
+);
