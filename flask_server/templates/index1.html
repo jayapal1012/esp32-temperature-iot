@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Temperature Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px;}
+        #chart-container { width: 100%; max-width: 800px; }
+    </style>
+</head>
+<body>
+    <h2>Real-Time Temperature</h2>
+    <div id="chart-container">
+        <canvas id="tempChart"></canvas>
+    </div>
+    <br>
+    <a href="/download">📥 Download CSV</a>
+
+    <!-- Include Chart.js locally -->
+    <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+    <script>
+    let ctx = document.getElementById('tempChart').getContext('2d');
+    let chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: [],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+                fill: false,
+                pointRadius: 2
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        parser: 'YYYY-MM-DD HH:mm:ss',
+                        tooltipFormat: 'HH:mm:ss',
+                        unit: 'second',
+                        displayFormats: {
+                            second: 'HH:mm:ss'
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Temperature (°C)'
+                    }
+                }
+            }
+        }
+    });
+
+    // Function to fetch data and update chart
+    async function fetchData() {
+        try {
+            let resp = await fetch('/data');
+            let json = await resp.json();
+            if (!Array.isArray(json)) return;
+
+            let labels = json.map(item => item.timestamp);
+            let data = json.map(item => item.temperature);
+
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = data;
+            chart.update();
+        } catch (e) {
+            console.error("Error fetching data:", e);
+        }
+    }
+
+    // Poll every second
+    setInterval(fetchData, 1000);
+    // Initial load
+    fetchData();
+    </script>
+</body>
+</html>
